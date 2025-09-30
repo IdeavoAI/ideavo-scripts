@@ -555,10 +555,6 @@ const setupElementSelector = () => {
     refresh: () => {
       saveNavigationState();
       window.location.reload();
-       sendMessage({
-        type:"refresh-response",
-        status:"ok"
-      })
     }
   };
 
