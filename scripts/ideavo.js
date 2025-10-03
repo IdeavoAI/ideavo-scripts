@@ -408,10 +408,14 @@ const setupElementSelector = () => {
   const getElementIdentifier = (element) => {
     // Generate unique identifier for element
     const parts = element.getAttribute("ideavo-tag-id").split(':');
+    const isStylesEditable = element.getAttribute("ideavo-styles-editable");
+    const isContentEditable = element.getAttribute("ideavo-content-editable");
     return {
       filePath: parts[0] || "unknown",
       lineNumber: parseInt(parts[1]) || 0,
-      col: parseInt(parts[2]) || 0
+      col: parseInt(parts[2]) || 0,
+      styleEditable: isStylesEditable,
+      contentEditable: isContentEditable,
     };
   };
 
