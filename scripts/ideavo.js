@@ -350,6 +350,7 @@ const setupElementSelector = () => {
     clearAllSelections();
     // Handle element selection logic
     const identifier = getElementIdentifier(event.target);
+    const editability = getEditability(event.target);
     const elements = findElements(identifier);
     const elementRect = elements[0]?.getBoundingClientRect();
 
@@ -385,7 +386,8 @@ const setupElementSelector = () => {
         className: event.target.className,
         id: event.target.id,
         rect: elementRect,
-        innerText: elements[0].innerText
+        innerText: elements[0].innerText,
+        editability
       }
     });
   };
@@ -408,14 +410,17 @@ const setupElementSelector = () => {
   const getElementIdentifier = (element) => {
     // Generate unique identifier for element
     const parts = element.getAttribute("ideavo-tag-id").split(':');
-    const isStylesEditable = element.getAttribute("ideavo-styles-editable");
-    const isContentEditable = element.getAttribute("ideavo-content-editable");
     return {
       filePath: parts[0] || "unknown",
       lineNumber: parseInt(parts[1]) || 0,
-      col: parseInt(parts[2]) || 0,
-      styleEditable: isStylesEditable,
-      contentEditable: isContentEditable,
+      col: parseInt(parts[2]) || 0
+    };
+  };
+
+  const getEditability = (element) => {
+    return {
+      styleEditable: element.getAttribute("ideavo-styles-editable") === "true",
+      contentEditable: element.getAttribute("ideavo-content-editable") === "true",
     };
   };
 
