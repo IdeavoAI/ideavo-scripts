@@ -8,7 +8,8 @@ const CONFIG = {
   BACKGROUND_DARK: "hsl(240 10% 3.9%)",
   FOREGROUND_LIGHT: "hsl(0 0% 98%)",
   ALLOWED_ORIGINS: [
-    "http://localhost:8081"
+    "http://localhost:8081",
+    "https://ideavo.ai"
   ],
   DEBOUNCE_DELAY: 10,
   Z_INDEX: 10000,
@@ -746,17 +747,6 @@ const setupElementSelector = () => {
 // Main initialization function
 const initIdeavo = () => {
   // Check for script override in development
-  // DECIDE: remove this block or not ?
-  if (window.location.search.includes("lov-override-script")) {
-    const overrideUrl = "http://localhost:8001/lovable.js";
-    console.log("Overriding lovable.js script with:", overrideUrl);
-
-    const script = document.createElement("script");
-    script.type = "module";
-    script.src = overrideUrl;
-    document.body.appendChild(script);
-    return;
-  }
 
   // Only run in iframe context
   if (window.top === window.self) return;
