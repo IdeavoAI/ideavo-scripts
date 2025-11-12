@@ -481,6 +481,7 @@ const setupElementSelector = () => {
   };
 
   const notifyUrlChange = () => {
+    console.log('[Ideavo] URL changed:', window.location.pathname, window.location.href);
     sendMessage({
       type: 'url-change',
       pathname: window.location.pathname,
@@ -753,6 +754,11 @@ const setupElementSelector = () => {
 
     state.isNavigationInitialized = true;
     sendNavigationState();
+
+    // Send initial URL notification
+    setTimeout(() => {
+      notifyUrlChange();
+    }, 100);
   };
 
   // Initialize message listener
