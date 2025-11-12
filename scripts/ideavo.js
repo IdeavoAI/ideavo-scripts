@@ -480,6 +480,14 @@ const setupElementSelector = () => {
     }
   };
 
+  const notifyUrlChange = () => {
+    sendMessage({
+      type: 'url-change',
+      pathname: window.location.pathname,
+      href: window.location.href
+    });
+  };
+
   const saveNavigationState = () => {
     try {
       sessionStorage.setItem(CONFIG.STORAGE_KEY, JSON.stringify({
@@ -532,6 +540,7 @@ const setupElementSelector = () => {
     state.historyPosition = state.historyStack.length - 1;
 
     sendNavigationState();
+    notifyUrlChange();
   };
 
   const handlePopState = () => {
@@ -542,9 +551,11 @@ const setupElementSelector = () => {
       state.historyPosition = urlIndex;
     } else {
       updateHistoryState();
+      return; // updateHistoryState already calls notifyUrlChange
     }
 
     sendNavigationState();
+    notifyUrlChange();
   };
 
   const navigationHandlers = {
@@ -713,6 +724,19 @@ const setupElementSelector = () => {
     }
 
     window.addEventListener('popstate', handlePopState);
+    window.addEventListener('hashchange', () => {
+      updateHistoryState();
+    });
+
+    // Watch for SPA routing changes via DOM mutations
+    let lastPath = window.location.pathname;
+    const urlObserver = new MutationObserver(() => {
+      if (window.location.pathname !== lastPath) {
+        lastPath = window.location.pathname;
+        updateHistoryState();
+      }
+    });
+    urlObserver.observe(document.body, { childList: true, subtree: true });
 
     const originalPushState = history.pushState;
     const originalReplaceState = history.replaceState;
