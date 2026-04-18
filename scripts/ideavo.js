@@ -734,6 +734,9 @@ const setupElementSelector = () => {
   // Initialize message listener
   window.addEventListener("message", handleSelectorMessage);
 
+  // Signal to parent that this script is ready to receive messages
+  sendMessage({ type: "VISUAL_EDIT_READY" });
+
   // Initialize navigation
   initializeNavigation();
 
