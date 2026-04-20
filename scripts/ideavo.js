@@ -310,23 +310,36 @@ const setupElementSelector = () => {
 
     // Remove previous highlights
     if (state.hoveredElement) {
-      const elements = findElements(getElementIdentifier(state.hoveredElement));
-      elements.forEach(el => {
-        if (!el.classList.contains("ideavo-selected-element")) {
-          unhighlightElement(el);
-        }
-      });
+      const prevIdentifier = getElementIdentifier(state.hoveredElement);
+      if (prevIdentifier) {
+        const elements = findElements(prevIdentifier);
+        elements.forEach(el => {
+          if (!el.classList.contains("ideavo-selected-element")) {
+            unhighlightElement(el);
+          }
+        });
+      }
+    }
+
+    // Only track elements that have an ideavo-tag-id attribute
+    if (!event.target.hasAttribute("ideavo-tag-id")) {
+      state.hoveredElement = null;
+      if (state.tooltip) state.tooltip.style.display = "none";
+      return;
     }
 
     state.hoveredElement = event.target;
 
     if (state.hoveredElement) {
-      const elements = findElements(getElementIdentifier(state.hoveredElement));
-      elements?.forEach(el => {
-        if (!el.classList.contains("ideavo-selected-element")) {
-          highlightElement(el);
-        }
-      });
+      const identifier = getElementIdentifier(state.hoveredElement);
+      if (identifier) {
+        const elements = findElements(identifier);
+        elements?.forEach(el => {
+          if (!el.classList.contains("ideavo-selected-element")) {
+            highlightElement(el);
+          }
+        });
+      }
 
       // Show tooltip
       if (state.tooltip) {
@@ -410,7 +423,9 @@ const setupElementSelector = () => {
 
   const getElementIdentifier = (element) => {
     // Generate unique identifier for element
-    const parts = element.getAttribute("ideavo-tag-id").split(':');
+    const attr = element.getAttribute("ideavo-tag-id");
+    if (!attr) return null;
+    const parts = attr.split(':');
     return {
       filePath: parts[0] || "unknown",
       lineNumber: parseInt(parts[1]) || 0,
@@ -768,4 +783,3 @@ const initIdeavo = () => {
 
 // Start the application
 initIdeavo();
-
