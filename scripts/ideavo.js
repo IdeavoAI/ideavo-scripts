@@ -12,6 +12,7 @@ const CONFIG = {
     "https://ideavo.ai"
   ],
   DEBOUNCE_DELAY: 10,
+  ACTIVITY_THROTTLE: 10000,
   Z_INDEX: 10000,
   TOOLTIP_OFFSET: 25,
   MAX_TOOLTIP_WIDTH: 200,
@@ -762,6 +763,36 @@ const setupElementSelector = () => {
   };
 };
 
+// Tell the parent the user is active in the preview so it keeps the sandbox awake
+const setupActivityReporter = () => {
+  const events = ["pointerdown", "click", "keydown", "wheel"];
+  let lastSent = 0;
+  let trailingTimer = null;
+
+  const send = () => {
+    trailingTimer = null;
+    lastSent = Date.now();
+    sendMessage({ type: "USER_ACTIVITY" });
+  };
+
+  const reportActivity = () => {
+    const wait = CONFIG.ACTIVITY_THROTTLE - (Date.now() - lastSent);
+    if (wait <= 0) return send();
+    if (!trailingTimer) trailingTimer = setTimeout(send, wait);
+  };
+
+  events.forEach((event) =>
+    window.addEventListener(event, reportActivity, { capture: true, passive: true })
+  );
+
+  return () => {
+    clearTimeout(trailingTimer);
+    events.forEach((event) =>
+      window.removeEventListener(event, reportActivity, { capture: true })
+    );
+  };
+};
+
 // Main initialization function
 const initIdeavo = () => {
   // Check for script override in development
@@ -772,12 +803,14 @@ const initIdeavo = () => {
 
   // Setup element selector
   const cleanupSelector = setupElementSelector();
+  const cleanupActivity = setupActivityReporter();
 
   // Cleanup on page unload
   window.addEventListener("unload", () => {
     if (cleanupSelector) {
       cleanupSelector();
     }
+    cleanupActivity();
   });
 };
 
